@@ -36,6 +36,7 @@ export async function getStaticProps(context: { params: { slug: string } }) {
 
 export default function Work({
   data,
+  previousRoute,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { state } = useGlobalState();
 
@@ -60,8 +61,8 @@ export default function Work({
           transition={transition}
           src={data.image}
           layoutId={data.slug}
-          initial={state.projectIndex === 0 && { opacity: 0 }}
-          animate={state.projectIndex === 0 && { opacity: 1 }}
+          initial={previousRoute !== "/" && { opacity: 0 }}
+          animate={previousRoute !== "/" && { opacity: 1 }}
           style={{
             background: "red",
             border: `20px green solid`,
