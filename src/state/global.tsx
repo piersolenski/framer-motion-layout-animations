@@ -3,6 +3,7 @@ import React, { createContext, useReducer, ReactNode, Dispatch } from "react";
 type State = {
   siteInitialized: boolean;
   projectIndex: number;
+  previousRoute: string | null;
   backgroundColor: string;
   introComplete: boolean;
   protectedPage: boolean;
@@ -12,12 +13,14 @@ type Action =
   | { type: "siteInitialized" }
   | { type: "introComplete" }
   | { type: "protectedPage"; value: boolean }
+  | { type: "previousRoute"; value: string | null }
   | { type: "backgroundColor"; value: string }
   | { type: "projectIndex"; value: number };
 
 const initialState: State = {
   siteInitialized: false,
   projectIndex: 0,
+  previousRoute: null,
   backgroundColor: "var(--white)",
   introComplete: false,
   protectedPage: false,
@@ -43,6 +46,8 @@ const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
         return { ...prevState, siteInitialized: true };
       case "introComplete":
         return { ...prevState, introComplete: true };
+      case "previousRoute":
+        return { ...prevState, previousRoute: action.value };
       case "protectedPage":
         return { ...prevState, protectedPage: action.value };
       case "backgroundColor":
