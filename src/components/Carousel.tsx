@@ -22,6 +22,7 @@ const Inner = styled.div({
 });
 
 const WrappedLink = styled(motion(Link))({
+  width: "var(--card-size)",
   display: "block",
 });
 
@@ -64,7 +65,6 @@ export function Carousel({ items }: { items: string[] }) {
       <Inner>
         {items.map((item, i) => (
           <WrappedLink
-            style={{ width: `50vh` }}
             key={i}
             href={`/work/item-${i}`}
             onClick={() => dispatch({ type: "projectIndex", value: i })}
