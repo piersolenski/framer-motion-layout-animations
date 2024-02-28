@@ -1,12 +1,11 @@
 import useHorizontalScroll from "../hooks/useHorizontalScroll";
-import { LayoutGroup } from "framer-motion";
 import { createRef, useLayoutEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import Link from "next/link";
 
-const Wrapper = styled(motion.div)({
+const Wrapper = styled.div({
   overflowX: "scroll",
   overflowY: "hidden",
   display: "flex",
@@ -61,7 +60,7 @@ export function Carousel({ items }: { items: string[] }) {
   }, []);
 
   return (
-    <Wrapper ref={scrollRef} layout layoutScroll>
+    <Wrapper ref={scrollRef}>
       <Inner>
         {items.map((item, i) => (
           <WrappedLink
@@ -70,9 +69,9 @@ export function Carousel({ items }: { items: string[] }) {
             href={`/work/item-${i}`}
             onClick={() => dispatch({ type: "projectIndex", value: i })}
             initial={{ opacity: state.projectIndex === i ? 1 : 0 }}
+            exit={{ opacity: state.projectIndex === i ? 1 : 0 }}
             transition={transition}
             animate={{ opacity: 1 }}
-            exit={{ opacity: state.projectIndex === i ? 1 : 0 }}
           >
             <motion.img
               ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}

@@ -5,6 +5,12 @@ import { MouseEvent } from "react";
 import { animate, motion } from "framer-motion";
 import { images } from "../../data/images";
 import { useGlobalState } from "../../hooks/useGlobalState";
+import styled from "styled-components";
+
+const Wrapper = styled.div({
+  display: "grid",
+  gridTemplateColumns: "repeat(12, 1fr)",
+});
 
 const transition = {
   duration: 1,
@@ -54,8 +60,12 @@ export default function Work({
   }
 
   return (
-    <div>
-      <Link href="/" onClick={(e) => handleClick(e)}>
+    <Wrapper>
+      <Link
+        style={{ gridColumn: "2 / 7" }}
+        href="/"
+        onClick={(e) => handleClick(e)}
+      >
         <motion.img
           transition={transition}
           src={data.image}
@@ -63,12 +73,7 @@ export default function Work({
           initial={state.previousRoute !== "/" && { opacity: 0 }}
           animate={state.previousRoute !== "/" && { opacity: 1 }}
           style={{
-            background: "red",
-            border: `20px green solid`,
-            width: `30em`,
-            left: "20%",
-            top: "20%",
-            height: `30em`,
+            width: `100%`,
           }}
         />
       </Link>
@@ -83,6 +88,7 @@ export default function Work({
           exit: { opacity: 0, x: 100 },
         }}
         style={{
+          gridColumn: "4 / 11",
           background: "red",
           border: `20px pink solid`,
           width: `90%`,
@@ -91,6 +97,6 @@ export default function Work({
           height: `130em`,
         }}
       />
-    </div>
+    </Wrapper>
   );
 }
