@@ -23,7 +23,6 @@ const Inner = styled.div({
 
 const WrappedLink = styled(motion(Link))({
   width: "var(--card-size)",
-  display: "block",
 });
 
 const transition = {
@@ -79,9 +78,6 @@ export function Carousel({ items }: { items: string[] }) {
               layout
               layoutId={`item-${i}`}
               src={item}
-              style={{
-                width: `100%`,
-              }}
               alt="Poo"
             />
           </WrappedLink>

@@ -72,9 +72,6 @@ export default function Work({
           layoutId={data.slug}
           initial={state.previousRoute !== "/" && { opacity: 0 }}
           animate={state.previousRoute !== "/" && { opacity: 1 }}
-          style={{
-            width: `100%`,
-          }}
         />
       </Link>
       <motion.div
