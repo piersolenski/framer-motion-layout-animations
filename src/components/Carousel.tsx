@@ -1,9 +1,9 @@
 import useHorizontalScroll from "../hooks/useHorizontalScroll";
 import { createRef, useLayoutEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import Link from "next/link";
+import { MotionImage } from "./Image";
 
 const Wrapper = styled.div({
   overflowX: "scroll",
@@ -21,13 +21,10 @@ const Inner = styled.div({
   gridAutoFlow: "column",
 });
 
-const WrappedLink = styled(motion(Link))({
+const WrappedLink = styled(Link)({
   width: "var(--card-size)",
+  height: "var(--card-size)",
 });
-
-const transition = {
-  duration: 1,
-};
 
 export function Carousel({ items }: { items: string[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -67,18 +64,14 @@ export function Carousel({ items }: { items: string[] }) {
             key={i}
             href={`/work/item-${i}`}
             onClick={() => dispatch({ type: "projectIndex", value: i })}
-            initial={{ opacity: state.projectIndex === i ? 1 : 0 }}
-            exit={{ opacity: state.projectIndex === i ? 1 : 0 }}
-            transition={transition}
-            animate={{ opacity: 1 }}
           >
-            <motion.img
+            <MotionImage
               ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
-              transition={transition}
-              layout
-              layoutId={`item-${i}`} /* [slug].tsx:74 */
               src={item}
-              alt="Poo"
+              layoutId={`image-${i}`}
+              priority={state.projectIndex === i}
+              doEnter={state.projectIndex !== i}
+              doExit={state.projectIndex !== i}
             />
           </WrappedLink>
         ))}

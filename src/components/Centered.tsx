@@ -1,7 +1,10 @@
 import styled from "styled-components";
+import { motion } from "framer-motion";
 
-export const Centered = styled.div({
+export const Centered = styled(motion.div)({
   gridColumn: "3 / 11",
   width: "100%",
-  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
 });

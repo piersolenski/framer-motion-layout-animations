@@ -2,13 +2,13 @@ import { ReactNode } from "react";
 import { Centered } from "@/components/Centered";
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { useGlobalState } from "@/hooks/useGlobalState";
-import { transition } from "@/pages/work/[slug]";
+import { conditionalEnterExit, transition } from "@/theme/animations";
 
 interface Props {
   layoutId?: string;
   children: ReactNode;
-  exit?: boolean;
+  doEnter?: boolean;
+  doExit?: boolean;
 }
 
 const Wrapper = styled(Centered)({
@@ -21,22 +21,23 @@ const Wrapper = styled(Centered)({
   fontFamily: "Arial",
 });
 
-export const Title = ({ layoutId, exit = true, children }: Props) => {
-  const { state } = useGlobalState();
+export const Title = ({
+  layoutId,
+  doEnter = true,
+  doExit = true,
+  children,
+}: Props) => {
   return (
     <Wrapper
       as={motion.div}
       layout
       layoutId={layoutId}
-      initial={state.previousRoute !== "/" ? false : "hidden"}
-      animate="enter"
       transition={transition}
+      variants={conditionalEnterExit}
+      custom={doExit}
+      initial={doEnter && "initial"}
+      animate="animate"
       exit="exit"
-      variants={{
-        hidden: { opacity: 0 },
-        enter: { opacity: 1 },
-        exit: { opacity: 1 },
-      }}
     >
       <h1>Title: {children}</h1>
     </Wrapper>

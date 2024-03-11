@@ -1,26 +1,46 @@
 import NextImage from "next/image";
 import { motion } from "framer-motion";
-import { useGlobalState } from "@/hooks/useGlobalState";
-import { transition } from "@/pages/work/[slug]";
+import { forwardRef } from "react";
+import { conditionalEnterExit, transition } from "@/theme/animations";
+import styled from "styled-components";
 
 interface Props {
   src: string;
-  layoutId: string;
-  exit?: boolean;
+  layoutId?: string;
+  doEnter?: boolean;
+  doExit?: boolean;
+  priority?: boolean;
 }
 
-export const Image = ({ src, layoutId, exit }: Props) => {
-  const { state } = useGlobalState();
+const Wrapper = styled(motion.div)({
+  width: "var(--card-size)",
+  height: "var(--card-size)",
+});
 
-  return (
-    <motion.div
-      transition={transition}
-      layoutId={layoutId} /* Carousel.tsx:78 */
-      initial={false}
-      animate={{ opacity: 1 }}
-      exit={exit ? { opacity: 1 } : { opacity: 0 }}
-    >
-      <NextImage src={src} alt={src} width={500} height={500} priority />
-    </motion.div>
-  );
-};
+export const MotionImage = forwardRef<HTMLDivElement, Props>(
+  ({ src, layoutId, doExit = true, doEnter = true, priority = false }, ref) => {
+    return (
+      <Wrapper
+        ref={ref}
+        transition={transition}
+        variants={conditionalEnterExit}
+        custom={doExit}
+        layout
+        layoutId={layoutId}
+        initial={doEnter && "initial"}
+        animate="animate"
+        exit="exit"
+      >
+        <NextImage
+          src={src}
+          alt="Bum"
+          width={500}
+          height={500}
+          priority={priority}
+        />
+      </Wrapper>
+    );
+  },
+);
+
+MotionImage.displayName = "Image";
