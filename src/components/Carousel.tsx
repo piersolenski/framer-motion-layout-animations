@@ -76,7 +76,7 @@ export function Carousel({ items }: { items: string[] }) {
               ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
               transition={transition}
               layout
-              layoutId={`item-${i}`}
+              layoutId={`item-${i}`} /* [slug].tsx:74 */
               src={item}
               alt="Poo"
             />

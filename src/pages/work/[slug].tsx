@@ -6,6 +6,7 @@ import { animate, motion } from "framer-motion";
 import { images } from "../../data/images";
 import { useGlobalState } from "../../hooks/useGlobalState";
 import styled from "styled-components";
+import { Title } from "@/components/Title";
 
 const Wrapper = styled.div({
   display: "grid",
@@ -35,27 +36,35 @@ export async function getStaticProps(context: { params: { slug: string } }) {
   const number = getNumberFromString(slug);
   return {
     props: {
-      data: { slug, image: images[number], number },
+      data: {
+        slug,
+        nextProjectId: (number + 1) % images.length,
+        image: images[number],
+        number,
+      },
     },
   };
 }
 
-export default function Work({
-  data,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+interface Props extends InferGetStaticPropsType<typeof getStaticProps> {}
+
+export default function Work({ data }: Props) {
   const { state } = useGlobalState();
+  const nextProjectHref = `/work/item-${data.nextProjectId}`;
 
   async function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     const href = event.currentTarget.getAttribute("href");
 
     event.preventDefault();
 
+    /* Scroll back to top of window */
     await animate(document.documentElement.scrollTop, 0, {
       duration: 1,
       ease: [0.645, 0.045, 0.355, 1],
       onUpdate: (v) => {
         window.scrollTo(0, v);
       },
+      /* Then trigger the route change */
     }).then(() => href && router.push(href));
   }
 
@@ -69,11 +78,12 @@ export default function Work({
         <motion.img
           transition={transition}
           src={data.image}
-          layoutId={data.slug}
+          layoutId={data.slug} /* Carousel.tsx:78 */
           initial={state.previousRoute !== "/" && { opacity: 0 }}
           animate={state.previousRoute !== "/" && { opacity: 1 }}
         />
       </Link>
+      <Title>{data.slug}</Title>
       <motion.div
         initial="hidden"
         animate="enter"
@@ -86,7 +96,8 @@ export default function Work({
         }}
         style={{
           gridColumn: "4 / 11",
-          background: "red",
+          background:
+            "repeating-linear-gradient(#e66465, #e66465 200px, pink 200px, pink 220px)",
           border: `20px pink solid`,
           width: `90%`,
           margin: `0 auto`,
@@ -94,6 +105,9 @@ export default function Work({
           height: `130em`,
         }}
       />
+      <Link style={{ gridColumn: "4 / 11" }} href={nextProjectHref}>
+        <Title layoutId={nextProjectHref}>{nextProjectHref}</Title>
+      </Link>
     </Wrapper>
   );
 }
