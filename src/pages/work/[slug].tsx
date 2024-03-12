@@ -27,6 +27,7 @@ const Content = styled(Centered)({
 const NextProject = styled(Centered)({
   minHeight: "100vh",
   justifyContent: "flex-start",
+  zIndex: 0,
 });
 
 export async function getStaticPaths() {
@@ -71,7 +72,6 @@ export default function Work({ data }: Props) {
   const [title, setTitle] = useState(`/work/${data.slug}`);
   const [nextRoute, setNextRoute] = useState<string | null>(null);
   const [hideContent, setHideContent] = useState(false);
-  const [hideFooter, setHideFooter] = useState(false);
 
   async function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     const { currentTarget } = event;
@@ -94,8 +94,10 @@ export default function Work({ data }: Props) {
       },
     })
       .then(() => {
+        animate(".nextProject", { opacity: 0 }, { duration: 0 });
+      })
+      .then(() => {
         /* Hide/change things before route change */
-        setHideFooter(true);
         if (currentTarget.dataset.type === "nextProject") {
           setImgSrc(data.nextProject.image);
           setTitle(nextProjectHref);
@@ -132,23 +134,20 @@ export default function Work({ data }: Props) {
         transition={transition}
       />
       <NextProject
+        className="nextProject"
         as={Link}
         href={nextProjectHref}
         onClick={handleClick}
         data-type="nextProject"
       >
-        {!hideFooter && (
-          <>
-            <Title doEnter={true} doExit={false}>
-              {nextProjectHref}
-            </Title>
-            <MotionImage
-              src={data.nextProject.image}
-              doEnter={true}
-              doExit={false}
-            />
-          </>
-        )}
+        <Title doEnter={true} doExit={true}>
+          {nextProjectHref}
+        </Title>
+        <MotionImage
+          src={data.nextProject.image}
+          doEnter={true}
+          doExit={true}
+        />
       </NextProject>
     </Wrapper>
   );
