@@ -1,8 +1,8 @@
 import Link from "next/link";
 import router from "next/router";
 import { InferGetStaticPropsType } from "next";
-import { MouseEvent, useState } from "react";
-import { animate, motion } from "framer-motion";
+import { MouseEvent, useEffect, useRef } from "react";
+import { animate } from "framer-motion";
 import { images } from "../../data/images";
 import { useGlobalState } from "../../hooks/useGlobalState";
 import styled from "styled-components";
@@ -21,13 +21,13 @@ const Content = styled(Centered)({
     "repeating-linear-gradient(#e66465, #e66465 200px, pink 200px, pink 220px)",
   border: `20px pink solid`,
   paddingInline: "20em",
-  height: `10em`,
+  height: `100em`,
+  zIndex: 0,
 });
 
-const NextProject = styled(Centered)({
-  minHeight: "100vh",
+const Heading = styled(Centered)({
   justifyContent: "flex-start",
-  zIndex: 0,
+  zIndex: 1,
 });
 
 export async function getStaticPaths() {
@@ -66,89 +66,91 @@ export async function getStaticProps(context: { params: { slug: string } }) {
 interface Props extends InferGetStaticPropsType<typeof getStaticProps> {}
 
 export default function Work({ data }: Props) {
-  const { state } = useGlobalState();
+  const { state, dispatch } = useGlobalState();
   const nextProjectHref = `/work/item-${data.nextProject.id}`;
-  const [imgSrc, setImgSrc] = useState(data.image);
-  const [title, setTitle] = useState(`/work/${data.slug}`);
-  const [nextRoute, setNextRoute] = useState<string | null>(null);
-  const [hideContent, setHideContent] = useState(false);
+  const headingRef = useRef<HTMLAnchorElement>(null!);
+
+  useEffect(() => {
+    /* PAGE ENTER */
+    if (
+      state.previousRoute !== "/" &&
+      state.pageTransition === "done" &&
+      headingRef.current
+    ) {
+      /* Scrolling has been disabled when coming from another porject,
+       * so do the scrolling */
+      window.scrollTo(0, 0);
+      animate(
+        headingRef.current,
+        {
+          /* Animate new heading FROM position of old footer TO the top of page */
+          y: [state.previousFooterTop, 0],
+        },
+        {
+          ease: [0.645, 0.045, 0.355, 1],
+          duration: 1,
+        },
+      );
+    }
+    dispatch({ type: "pageTransition", value: "idle" });
+  }, [
+    state.pageTransition,
+    state.previousRoute,
+    state.previousFooterTop,
+    dispatch,
+    headingRef,
+  ]);
 
   async function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    /* PAGE EXIT */
+    event.preventDefault();
+
     const { currentTarget } = event;
     const href = currentTarget.getAttribute("href");
 
-    setNextRoute(href);
+    if (href === "/") {
+      /* Scroll back to top of window */
+      await animate(document.documentElement.scrollTop, 0, {
+        duration: 1,
+        ease: [0.645, 0.045, 0.355, 1],
+        onUpdate: (v) => {
+          window.scrollTo(0, v);
+        },
+      }).then(() => (href ? router.push(href) : null));
+    } else {
+      /* If going to next project */
+      const rect = event.currentTarget.getBoundingClientRect();
+      /* Store the current footer's top position */
+      dispatch({ type: "previousFooterTop", value: rect.top });
+      /* Keep track of the state of the transition */
+      dispatch({ type: "pageTransition", value: "transitioning" });
 
-    event.preventDefault();
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scrollTo = rect.top + window.scrollY;
-
-    setHideContent(true);
-    /* Scroll back to top of window */
-    await animate(document.documentElement.scrollTop, scrollTo, {
-      duration: 1,
-      ease: [0.645, 0.045, 0.355, 1],
-      onUpdate: (v) => {
-        window.scrollTo(0, v);
-      },
-    })
-      .then(() => {
-        animate(".nextProject", { opacity: 0 }, { duration: 0 });
-      })
-      .then(() => {
-        /* Hide/change things before route change */
-        if (currentTarget.dataset.type === "nextProject") {
-          setImgSrc(data.nextProject.image);
-          setTitle(nextProjectHref);
-        }
-      })
-      .then(() => (href ? router.push(href) : null));
+      if (href) router.push(href, undefined, { scroll: false });
+    }
   }
 
   return (
     <Wrapper>
-      <Centered as={Link} href="/" onClick={handleClick}>
-        <Title doEnter={state.previousRoute === "/"} doExit={nextRoute === "/"}>
-          {title}
-        </Title>
-        <MotionImage
-          src={imgSrc}
-          layoutId={`image-${data.id}`}
-          doEnter={false}
-          doExit={false}
-          priority
-        />
-      </Centered>
+      <Heading ref={headingRef} as={Link} href="/" onClick={handleClick}>
+        <Title
+          initial={state.previousRoute === "/" && { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >{`/work/item-${data.id}`}</Title>
+        <MotionImage src={data.image} layoutId={`image-${data.id}`} priority />
+      </Heading>
 
       <Content
-        as={motion.div}
-        initial="hidden"
-        animate={hideContent ? "hidden" : "enter"}
-        exit="exit"
-        variants={{
-          hidden: { opacity: 0, x: -200 },
-          enter: { opacity: 1, x: 0 },
-          exit: { opacity: 0, x: 100 },
-        }}
+        initial={{ opacity: 0, x: -200 }}
+        animate={{ opacity: 1, x: 0, transition: { ...transition, delay: 1 } }}
+        exit={{ opacity: 0, x: 100 }}
         transition={transition}
       />
-      <NextProject
-        className="nextProject"
-        as={Link}
-        href={nextProjectHref}
-        onClick={handleClick}
-        data-type="nextProject"
-      >
-        <Title doEnter={true} doExit={true}>
-          {nextProjectHref}
-        </Title>
-        <MotionImage
-          src={data.nextProject.image}
-          doEnter={true}
-          doExit={true}
-        />
-      </NextProject>
+
+      <Heading as={Link} href={nextProjectHref} onClick={handleClick}>
+        <Title>{nextProjectHref}</Title>
+        <MotionImage src={data.nextProject.image} />
+      </Heading>
     </Wrapper>
   );
 }

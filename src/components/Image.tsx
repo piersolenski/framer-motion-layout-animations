@@ -1,36 +1,20 @@
 import NextImage from "next/image";
-import { motion } from "framer-motion";
+import { MotionProps, motion } from "framer-motion";
 import { forwardRef } from "react";
-import { conditionalEnterExit, transition } from "@/theme/animations";
+import { transition } from "@/theme/animations";
 import styled from "styled-components";
 
-interface Props {
+interface Props extends MotionProps {
   src: string;
-  layoutId?: string;
-  doEnter?: boolean;
-  doExit?: boolean;
   priority?: boolean;
 }
 
-const Wrapper = styled(motion.div)({
-  width: "var(--card-size)",
-  height: "var(--card-size)",
-});
+const Wrapper = styled(motion.div)({});
 
 export const MotionImage = forwardRef<HTMLDivElement, Props>(
-  ({ src, layoutId, doExit = true, doEnter = true, priority = false }, ref) => {
+  ({ src, priority = false, ...props }, ref) => {
     return (
-      <Wrapper
-        ref={ref}
-        transition={transition}
-        variants={conditionalEnterExit}
-        custom={doExit}
-        layout
-        layoutId={layoutId}
-        initial={doEnter && "initial"}
-        animate="animate"
-        exit="exit"
-      >
+      <Wrapper ref={ref} transition={transition} {...props}>
         <NextImage
           src={src}
           alt="Bum"

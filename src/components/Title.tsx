@@ -1,17 +1,13 @@
-import { ReactNode } from "react";
-import { Centered } from "@/components/Centered";
-import { motion } from "framer-motion";
+import { ReactNode, forwardRef } from "react";
+import { MotionProps, motion } from "framer-motion";
 import styled from "styled-components";
-import { conditionalEnterExit, transition } from "@/theme/animations";
+import { transition } from "@/theme/animations";
 
-interface Props {
-  layoutId?: string;
+interface Props extends MotionProps {
   children: ReactNode;
-  doEnter?: boolean;
-  doExit?: boolean;
 }
 
-const Wrapper = styled(Centered)({
+const Wrapper = styled(motion.div)({
   background: "lightblue",
   border: `20px skyblue solid`,
   padding: "5em",
@@ -19,27 +15,17 @@ const Wrapper = styled(Centered)({
   margin: `0 auto`,
   height: `10em`,
   fontFamily: "Arial",
+  position: "relative",
 });
 
-export const Title = ({
-  layoutId,
-  doEnter = true,
-  doExit = true,
-  children,
-}: Props) => {
-  return (
-    <Wrapper
-      as={motion.div}
-      layout
-      layoutId={layoutId}
-      transition={transition}
-      variants={conditionalEnterExit}
-      custom={doExit}
-      initial={doEnter && "initial"}
-      animate="animate"
-      exit="exit"
-    >
-      <h1>Title: {children}</h1>
-    </Wrapper>
-  );
-};
+export const Title = forwardRef<HTMLDivElement, Props>(
+  ({ children, ...props }, ref) => {
+    return (
+      <Wrapper ref={ref} transition={transition} {...props}>
+        <h1>Title: {children}</h1>
+      </Wrapper>
+    );
+  },
+);
+
+Title.displayName = "Title";

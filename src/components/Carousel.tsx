@@ -23,7 +23,6 @@ const Inner = styled.div({
 
 const WrappedLink = styled(Link)({
   width: "var(--card-size)",
-  height: "var(--card-size)",
 });
 
 export function Carousel({ items }: { items: string[] }) {
@@ -70,8 +69,9 @@ export function Carousel({ items }: { items: string[] }) {
               src={item}
               layoutId={`image-${i}`}
               priority={state.projectIndex === i}
-              doEnter={state.projectIndex !== i}
-              doExit={state.projectIndex !== i}
+              initial={state.projectIndex !== i && { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: state.projectIndex !== i ? 0 : 1 }}
             />
           </WrappedLink>
         ))}
