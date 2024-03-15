@@ -108,6 +108,8 @@ export default function Work({ data }: Props) {
     const { currentTarget } = event;
     const href = currentTarget.getAttribute("href");
 
+    dispatch({ type: "projectIndex", value: data.id });
+
     if (href === "/") {
       /* Scroll back to top of window */
       await animate(document.documentElement.scrollTop, 0, {
