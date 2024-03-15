@@ -3,7 +3,7 @@ import { createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import Link from "next/link";
-import { MotionImage } from "./Image";
+import { MotionImage } from "./MotionImage";
 
 const Wrapper = styled.div({
   overflowX: "scroll",

@@ -6,9 +6,9 @@ import { animate } from "framer-motion";
 import { images } from "../../data/images";
 import { useGlobalState } from "../../hooks/useGlobalState";
 import styled from "styled-components";
-import { Title } from "@/components/Title";
+import { MotionTitle } from "@/components/MotionTitle";
 import { Centered } from "@/components/Centered";
-import { MotionImage } from "@/components/Image";
+import { MotionImage } from "@/components/MotionImage";
 import { transition } from "@/theme/animations";
 
 const Wrapper = styled.div({
@@ -134,11 +134,11 @@ export default function Work({ data }: Props) {
   return (
     <Wrapper>
       <Heading ref={headingRef} as={Link} href="/" onClick={handleClick}>
-        <Title
+        <MotionTitle
           initial={state.previousRoute === "/" && { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-        >{`/work/item-${data.id}`}</Title>
+        >{`/work/item-${data.id}`}</MotionTitle>
         <MotionImage src={data.image} layoutId={`image-${data.id}`} priority />
       </Heading>
 
@@ -150,7 +150,7 @@ export default function Work({ data }: Props) {
       />
 
       <Heading as={Link} href={nextProjectHref} onClick={handleClick}>
-        <Title>{nextProjectHref}</Title>
+        <MotionTitle>{nextProjectHref}</MotionTitle>
         <MotionImage src={data.nextProject.image} />
       </Heading>
     </Wrapper>

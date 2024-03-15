@@ -7,7 +7,7 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
 
-  --card-size: 500px;
+  --card-size: 50vh;
 
   --primary-glow: conic-gradient(
     from 180deg at 50% 50%,

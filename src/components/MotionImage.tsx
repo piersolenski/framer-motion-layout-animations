@@ -1,20 +1,17 @@
 import NextImage from "next/image";
-import { MotionProps, motion } from "framer-motion";
+import { MotionProps } from "framer-motion";
 import { forwardRef } from "react";
-import { transition } from "@/theme/animations";
-import styled from "styled-components";
+import { LayoutWrapper } from "./LayoutWrapper";
 
 interface Props extends MotionProps {
   src: string;
   priority?: boolean;
 }
 
-const Wrapper = styled(motion.div)({});
-
 export const MotionImage = forwardRef<HTMLDivElement, Props>(
   ({ src, priority = false, ...props }, ref) => {
     return (
-      <Wrapper ref={ref} transition={transition} {...props}>
+      <LayoutWrapper ref={ref} {...props}>
         <NextImage
           src={src}
           alt="Bum"
@@ -22,7 +19,7 @@ export const MotionImage = forwardRef<HTMLDivElement, Props>(
           height={500}
           priority={priority}
         />
-      </Wrapper>
+      </LayoutWrapper>
     );
   },
 );

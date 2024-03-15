@@ -1,13 +1,9 @@
 import { ReactNode, forwardRef } from "react";
-import { MotionProps, motion } from "framer-motion";
+import { MotionProps } from "framer-motion";
 import styled from "styled-components";
-import { transition } from "@/theme/animations";
+import { LayoutWrapper } from "./LayoutWrapper";
 
-interface Props extends MotionProps {
-  children: ReactNode;
-}
-
-const Wrapper = styled(motion.div)({
+const Wrapper = styled(LayoutWrapper)({
   background: "lightblue",
   border: `20px skyblue solid`,
   padding: "5em",
@@ -18,14 +14,18 @@ const Wrapper = styled(motion.div)({
   position: "relative",
 });
 
-export const Title = forwardRef<HTMLDivElement, Props>(
+interface Props extends MotionProps {
+  children: ReactNode;
+}
+
+export const MotionTitle = forwardRef<HTMLDivElement, Props>(
   ({ children, ...props }, ref) => {
     return (
-      <Wrapper ref={ref} transition={transition} {...props}>
+      <Wrapper ref={ref} {...props}>
         <h1>Title: {children}</h1>
       </Wrapper>
     );
   },
 );
 
-Title.displayName = "Title";
+MotionTitle.displayName = "MotionTitle";
