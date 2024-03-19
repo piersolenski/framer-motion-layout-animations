@@ -1,20 +1,22 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import ReactPlayer from 'react-player';
-import screenfull from 'screenfull';
-import styled from 'styled-components';
-import UnstyledButton from '../UnstyledButton';
-import { Play } from './icons/Play';
-import { Pause } from './icons/Pause';
-import { Volume } from './icons/Volume';
-import { Mute } from './icons/Mute';
-import { FullscreenOpen } from './icons/FullscreenOpen';
-import { FullscreenClose } from './icons/FullscreenClose';
+import { VideoMedia } from "@/data/imagesAndVimeoVideos";
+import { useState } from "react";
+import ReactPlayer from "react-player/lazy";
 
-const Wrapper = styled.div`
-  position: relative;
-  aspect-ratio: 16 / 9;
-  color: white;
+import { Play } from "./icons/Play";
+import { Pause } from "./icons/Pause";
+import { Volume } from "./icons/Volume";
+import { Mute } from "./icons/Mute";
+import { FullscreenOpen } from "./icons/FullscreenOpen";
+import { FullscreenClose } from "./icons/FullscreenClose";
+import styled from "styled-components";
+
+const Wrapper = styled.div<{ active: boolean }>`
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  opacity: ${({ active }) => (active ? 1 : 0)} !important;
 `;
 
 const Controls = styled.div`
@@ -177,36 +179,32 @@ const Progress = styled.progress`
     transition: width 0.2s ease;
   }
 `;
-const Gif = styled.video`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  /* pointer-events: none; */
-  opacity: ${({ active }) => (active ? 1 : 0)};
-  transition: opacity 0.5s ease;
+
+const UnstyledButton = styled.button`
+  all: unset;
 `;
 
-export default function VideoPlayer({
-  className,
-  active,
-  vimeoId,
-  cloudinaryId,
-}) {
-  const wrapper = useRef();
-  const video = useRef();
+export interface VideoPlayerProps {
+  playerRef: React.MutableRefObject<any>;
+  media: VideoMedia;
+}
+
+export const VideoPlayer = ({
+  playerRef,
+  media,
+  ...props
+}: VideoPlayerProps) => {
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [loaded, setLoaded] = useState(0);
   const [played, setPlayed] = useState(0);
   const [showTeaser, setShowTeaser] = useState(false);
   const [seeking, setSeeking] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [error, setError] = useState(false);
 
   const toggleFullscreen = () => {
-    screenfull.toggle(wrapper.current);
+    // screenfull.toggle(wrapperRef.current);
     setFullscreen(!fullscreen);
   };
 
@@ -226,38 +224,43 @@ export default function VideoPlayer({
   }
 
   function handleSeekMouseUp(e) {
-    video.current.seekTo(parseFloat(e.target.value));
+    if (!playerRef.current) return;
+    playerRef.current.seekTo(parseFloat(e.target.value));
     setSeeking(false);
   }
 
   function handleEnded() {
     setShowTeaser(true);
-    video.current.seekTo(0);
+    playerRef.current.seekTo(0);
+  }
+
+  function handleError() {
+    setPlaying(false);
+    setError(true);
   }
 
   return (
-    <Wrapper ref={wrapper} className={className} active={active}>
+    <Wrapper active={true}>
       <ReactPlayer
-        ref={video}
-        width="100%"
-        height="100%"
+        ref={playerRef}
+        url={media.vimeoUrl}
         playing={playing}
-        url={vimeoId}
         muted={muted}
-        onProgress={(e) => handleProgress(e)}
-        onMouseDown={() => handleSeekMouseDown()}
-        onChange={(e) => handleSeekChange(e)}
-        onMouseUp={(e) => handleSeekMouseUp(e)}
-        onEnded={() => handleEnded()}
+        onError={handleError}
+        onProgress={handleProgress}
+        onMouseDown={handleSeekMouseDown}
+        onChange={handleSeekChange}
+        onMouseUp={handleSeekMouseUp}
+        onEnded={handleEnded}
+        {...props}
       />
-
       <Controls>
         <UnstyledButton type="button" onClick={() => setPlaying(!playing)}>
           {playing ? <Pause /> : <Play />}
         </UnstyledButton>
         <ProgressBar>
           <Seeker
-            style={{ '--value': `${played * 100}%` }}
+            style={{ "--value": `${played * 100}%` }}
             type="range"
             onMouseDown={(e) => handleSeekMouseDown(e)}
             onChange={(e) => handleSeekChange(e)}
@@ -276,28 +279,6 @@ export default function VideoPlayer({
           {fullscreen ? <FullscreenOpen /> : <FullscreenClose />}
         </UnstyledButton>
       </Controls>
-      {/* <Gif */}
-      {/*   onClick={() => { */}
-      {/*     setPlaying(true); */}
-      {/*     setShowTeaser(false); */}
-      {/*   }} */}
-      {/*   css={` */}
-      {/*     pointer-events: ${playing ? 'none' : 'initial'}; */}
-      {/*   `} */}
-      {/*   // active={!playing} */}
-      {/*   muted */}
-      {/*   autoPlay */}
-      {/*   playsInline */}
-      {/*   loop */}
-      {/*   src={cloudinaryId} */}
-      {/* /> */}
     </Wrapper>
   );
-}
-
-VideoPlayer.propTypes = {
-  active: PropTypes.bool,
-  className: PropTypes.string,
-  cloudinaryId: PropTypes.string.isRequired,
-  vimeoId: PropTypes.string.isRequired,
 };

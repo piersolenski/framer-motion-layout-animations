@@ -9,6 +9,7 @@ type State = {
   protectedPage: boolean;
   previousFooterTop: number;
   pageTransition: "idle" | "transitioning" | "done";
+  videoTime: number;
 };
 
 type Action =
@@ -19,7 +20,8 @@ type Action =
   | { type: "backgroundColor"; value: string }
   | { type: "projectIndex"; value: number }
   | { type: "previousFooterTop"; value: number }
-  | { type: "pageTransition"; value: "idle" | "transitioning" | "done" };
+  | { type: "pageTransition"; value: "idle" | "transitioning" | "done" }
+  | { type: "videoTime"; value: number };
 
 const initialState: State = {
   siteInitialized: false,
@@ -30,6 +32,7 @@ const initialState: State = {
   protectedPage: false,
   previousFooterTop: 0,
   pageTransition: "idle",
+  videoTime: 0,
 };
 
 const store = createContext<{
@@ -64,6 +67,8 @@ const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
         return { ...prevState, previousFooterTop: action.value };
       case "pageTransition":
         return { ...prevState, pageTransition: action.value };
+      case "videoTime":
+        return { ...prevState, videoTime: action.value };
       default:
         throw new Error();
     }
