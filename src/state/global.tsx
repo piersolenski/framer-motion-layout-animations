@@ -7,6 +7,8 @@ type State = {
   backgroundColor: string;
   introComplete: boolean;
   protectedPage: boolean;
+  previousFooterTop: number;
+  pageTransition: "idle" | "transitioning" | "done";
 };
 
 type Action =
@@ -15,7 +17,9 @@ type Action =
   | { type: "protectedPage"; value: boolean }
   | { type: "previousRoute"; value: string | null }
   | { type: "backgroundColor"; value: string }
-  | { type: "projectIndex"; value: number };
+  | { type: "projectIndex"; value: number }
+  | { type: "previousFooterTop"; value: number }
+  | { type: "pageTransition"; value: "idle" | "transitioning" | "done" };
 
 const initialState: State = {
   siteInitialized: false,
@@ -24,6 +28,8 @@ const initialState: State = {
   backgroundColor: "var(--white)",
   introComplete: false,
   protectedPage: false,
+  previousFooterTop: 0,
+  pageTransition: "idle",
 };
 
 const store = createContext<{
@@ -54,6 +60,10 @@ const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
         return { ...prevState, backgroundColor: action.value };
       case "projectIndex":
         return { ...prevState, projectIndex: action.value };
+      case "previousFooterTop":
+        return { ...prevState, previousFooterTop: action.value };
+      case "pageTransition":
+        return { ...prevState, pageTransition: action.value };
       default:
         throw new Error();
     }
