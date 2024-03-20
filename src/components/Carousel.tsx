@@ -1,9 +1,12 @@
 import useHorizontalScroll from "../hooks/useHorizontalScroll";
-import { createRef, useLayoutEffect, useRef } from "react";
+import { SyntheticEvent, createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import Link from "next/link";
 import { MotionImage } from "./MotionImage";
+import { MotionVideo } from "./MotionVideo";
+import { Media, PhotoMedia, VideoMedia } from "@/data/imagesAndVimeoVideos";
+import { useRouter } from "next/router";
 
 const Wrapper = styled.div({
   overflowX: "scroll",
@@ -21,16 +24,19 @@ const Inner = styled.div({
   gridAutoFlow: "column",
 });
 
-const WrappedLink = styled(Link)({
-  width: "var(--card-size)",
-});
+const WrappedLink = styled(Link)`
+  width: var(--card-size);
+`;
 
-export function Carousel({ items }: { items: string[] }) {
+export function Carousel({ items }: { items: Array<{ media: Media }> }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { state, dispatch } = useGlobalState();
   useHorizontalScroll(scrollRef);
+  const router = useRouter();
 
-  const itemRefs = useRef<React.RefObject<HTMLImageElement>[]>([]);
+  const itemRefs = useRef<
+    React.RefObject<HTMLImageElement | HTMLVideoElement>[]
+  >([]);
 
   useLayoutEffect(() => {
     const targetElementRef = itemRefs.current[state.projectIndex];
@@ -55,24 +61,63 @@ export function Carousel({ items }: { items: string[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleClick = async (
+    e: SyntheticEvent<HTMLAnchorElement>,
+    i: number,
+  ) => {
+    e.preventDefault();
+    dispatch({ type: "projectIndex", value: i });
+    dispatch({ type: "pageTransition", value: "transitioning" });
+
+    const transitionType = e.currentTarget.dataset.type;
+    const { currentTarget } = e;
+    const href = currentTarget.getAttribute("href");
+
+    if (transitionType === "video") {
+      const videoEl = currentTarget.querySelector("video");
+      if (videoEl) {
+        videoEl.pause();
+        const { currentTime } = videoEl;
+        dispatch({ type: "videoTime", value: currentTime || 0 });
+      }
+    }
+
+    if (href) router.push(href, undefined, { scroll: false });
+  };
+
+  const animationProps = (i: number) => ({
+    ref: (itemRefs.current[i] = itemRefs.current[i] || createRef()),
+    layoutId: `item-${i}`,
+    initial: state.projectIndex !== i && { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: state.projectIndex !== i ? 0 : 1 },
+  });
+
   return (
     <Wrapper ref={scrollRef}>
       <Inner>
-        {items.map((item, i) => (
+        {items.map(({ media }, i) => (
           <WrappedLink
             key={i}
             href={`/work/item-${i}`}
-            onClick={() => dispatch({ type: "projectIndex", value: i })}
+            onClick={(e) => handleClick(e, i)}
+            data-type={media._type}
           >
-            <MotionImage
-              ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
-              src={item}
-              layoutId={`image-${i}`}
-              priority={state.projectIndex === i}
-              initial={state.projectIndex !== i && { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: state.projectIndex !== i ? 0 : 1 }}
-            />
+            {media._type === "video" && (
+              <MotionVideo
+                media={media as VideoMedia}
+                active={false}
+                {...animationProps(i)}
+              />
+            )}
+
+            {media._type === "photo" && (
+              <MotionImage
+                media={media as PhotoMedia}
+                priority={state.projectIndex === i}
+                {...animationProps(i)}
+              />
+            )}
           </WrappedLink>
         ))}
       </Inner>

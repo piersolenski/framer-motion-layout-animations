@@ -1,6 +1,6 @@
-import { images } from "../data/images";
 import { Carousel } from "../components/Carousel";
+import { imagesAndVimeoIds } from "@/data/imagesAndVimeoVideos";
 
 export default function Home() {
-  return <Carousel items={images} />;
+  return <Carousel items={imagesAndVimeoIds} />;
 }

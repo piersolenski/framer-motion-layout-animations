@@ -2,26 +2,32 @@ import NextImage from "next/image";
 import { MotionProps } from "framer-motion";
 import { forwardRef } from "react";
 import { LayoutWrapper } from "./LayoutWrapper";
+import styled from "styled-components";
+import { PhotoMedia } from "@/data/imagesAndVimeoVideos";
+
+const Wrapper = styled(LayoutWrapper)``;
 
 interface Props extends MotionProps {
-  src: string;
+  media: PhotoMedia;
+  width?: number;
+  height?: number;
   priority?: boolean;
 }
 
 export const MotionImage = forwardRef<HTMLDivElement, Props>(
-  ({ src, priority = false, ...props }, ref) => {
+  ({ media, priority = false, width = 500, height = 500, ...props }, ref) => {
     return (
-      <LayoutWrapper ref={ref} {...props}>
+      <Wrapper ref={ref} {...props}>
         <NextImage
-          src={src}
+          src={media.image.asset}
           alt="Bum"
-          width={500}
-          height={500}
+          width={width}
+          height={height}
           priority={priority}
         />
-      </LayoutWrapper>
+      </Wrapper>
     );
   },
 );
 
-MotionImage.displayName = "Image";
+MotionImage.displayName = "MotionImage";

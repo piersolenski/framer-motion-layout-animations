@@ -1,15 +1,20 @@
 import Link from "next/link";
 import router from "next/router";
 import { InferGetStaticPropsType } from "next";
-import { MouseEvent, useEffect, useRef } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
-import { images } from "../../data/images";
 import { useGlobalState } from "../../hooks/useGlobalState";
 import styled from "styled-components";
 import { MotionTitle } from "@/components/MotionTitle";
 import { Centered } from "@/components/Centered";
 import { MotionImage } from "@/components/MotionImage";
 import { transition } from "@/theme/animations";
+import {
+  PhotoMedia,
+  VideoMedia,
+  imagesAndVimeoIds,
+} from "@/data/imagesAndVimeoVideos";
+import { MotionVideo } from "@/components/MotionVideo";
 
 const Wrapper = styled.div({
   display: "grid",
@@ -32,7 +37,7 @@ const Heading = styled(Centered)({
 
 export async function getStaticPaths() {
   return {
-    paths: images.map((_, i) => ({
+    paths: imagesAndVimeoIds.map((_, i) => ({
       params: { slug: `item-${i + 0}` },
     })),
     fallback: false,
@@ -47,16 +52,16 @@ export async function getStaticProps(context: { params: { slug: string } }) {
   }
 
   const id = getNumberFromString(slug);
-  const nextId = (id + 1) % images.length;
+  const nextId = (id + 1) % imagesAndVimeoIds.length;
   return {
     props: {
       data: {
         id,
         slug,
-        image: images[id],
+        item: imagesAndVimeoIds[id],
         nextProject: {
           id: nextId,
-          image: images[nextId],
+          item: imagesAndVimeoIds[nextId],
         },
       },
     },
@@ -69,36 +74,74 @@ export default function Work({ data }: Props) {
   const { state, dispatch } = useGlobalState();
   const nextProjectHref = `/work/item-${data.nextProject.id}`;
   const headingRef = useRef<HTMLAnchorElement>(null!);
+  const mediaRef = useRef<HTMLDivElement>(null!);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [goingHome, setGoingHome] = useState(false);
 
   useEffect(() => {
-    /* PAGE ENTER */
-    if (
-      state.previousRoute !== "/" &&
-      state.pageTransition === "done" &&
-      headingRef.current
-    ) {
-      /* Scrolling has been disabled when coming from another porject,
-       * so do the scrolling */
-      window.scrollTo(0, 0);
-      animate(
-        headingRef.current,
-        {
-          /* Animate new heading FROM position of old footer TO the top of page */
-          y: [state.previousFooterTop, 0],
-        },
-        {
-          ease: [0.645, 0.045, 0.355, 1],
-          duration: 1,
-        },
-      );
+    if (videoRef.current) {
+      videoRef.current.currentTime = state.videoTime;
+      videoRef.current.play();
     }
-    dispatch({ type: "pageTransition", value: "idle" });
+  }, [videoRef, state.videoTime]);
+
+  useEffect(() => {
+    /* PAGE ENTER FROM ANOTHER PROJECT */
+    const enter = async () => {
+      if (
+        state.previousRoute !== "/" &&
+        /* Completes at the end of prev page transition */
+        state.pageTransition === "done" &&
+        headingRef.current &&
+        mediaRef.current
+      ) {
+        /* Scrolling has been disabled when coming from another porject,
+         * so do the scrolling */
+        window.scrollTo(0, 0);
+        await animate([
+          [
+            headingRef.current,
+            {
+              /* Animate new heading FROM position of old footer TO the top of page */
+              y: [state.previousFooterTop, 0],
+            },
+            {
+              ease: [0.645, 0.045, 0.355, 1],
+              duration: 1,
+            },
+          ],
+          [
+            mediaRef.current,
+            {
+              y: [state.previousFooterTop, 0],
+            },
+            {
+              ease: [0.645, 0.045, 0.355, 1],
+              duration: 1,
+              at: 0.1,
+            },
+          ],
+        ]);
+        if (videoRef.current) {
+          videoRef.current.pause();
+          const { currentTime } = videoRef.current;
+          dispatch({ type: "videoTime", value: currentTime || 0 });
+        }
+      }
+    };
+    if (goingHome) return;
+    enter();
   }, [
     state.pageTransition,
     state.previousRoute,
     state.previousFooterTop,
     dispatch,
     headingRef,
+    mediaRef,
+    videoRef,
+    goingHome,
   ]);
 
   async function handleClick(event: MouseEvent<HTMLAnchorElement>) {
@@ -111,6 +154,7 @@ export default function Work({ data }: Props) {
     dispatch({ type: "projectIndex", value: data.id });
 
     if (href === "/") {
+      setGoingHome(true);
       /* Scroll back to top of window */
       await animate(document.documentElement.scrollTop, 0, {
         duration: 1,
@@ -127,6 +171,12 @@ export default function Work({ data }: Props) {
       /* Keep track of the state of the transition */
       dispatch({ type: "pageTransition", value: "transitioning" });
 
+      if (videoRef.current) {
+        videoRef.current.pause();
+        const { currentTime } = videoRef.current;
+        dispatch({ type: "videoTime", value: currentTime || 0 });
+      }
+
       if (href) router.push(href, undefined, { scroll: false });
     }
   }
@@ -139,8 +189,25 @@ export default function Work({ data }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >{`/work/item-${data.id}`}</MotionTitle>
-        <MotionImage src={data.image} layoutId={`image-${data.id}`} priority />
       </Heading>
+
+      <Centered ref={mediaRef}>
+        {data.item.media._type === "video" && (
+          <MotionVideo
+            active
+            media={data.item.media as VideoMedia}
+            layoutId={`item-${data.id}`}
+            videoRef={videoRef}
+          />
+        )}
+
+        {data.item.media._type === "photo" && (
+          <MotionImage
+            media={data.item.media as PhotoMedia}
+            layoutId={`item-${data.id}`}
+          />
+        )}
+      </Centered>
 
       <Content
         initial={{ opacity: 0, x: -200 }}
@@ -151,8 +218,17 @@ export default function Work({ data }: Props) {
 
       <Heading as={Link} href={nextProjectHref} onClick={handleClick}>
         <MotionTitle>{nextProjectHref}</MotionTitle>
-        <MotionImage src={data.nextProject.image} />
       </Heading>
+      <Centered>
+        {data.nextProject.item.media._type === "video" ? (
+          <MotionVideo
+            active={false}
+            media={data.nextProject.item.media as VideoMedia}
+          />
+        ) : (
+          <MotionImage media={data.nextProject.item.media as PhotoMedia} />
+        )}
+      </Centered>
     </Wrapper>
   );
 }
