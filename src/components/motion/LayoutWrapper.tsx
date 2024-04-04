@@ -14,6 +14,7 @@ export const LayoutWrapper = forwardRef<HTMLDivElement, Props>(
     return (
       <MotionDiv
         ref={ref}
+        layout
         layoutId={layoutId}
         transition={transition}
         {...props}

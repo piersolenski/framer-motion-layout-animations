@@ -1,12 +1,10 @@
 import useHorizontalScroll from "../hooks/useHorizontalScroll";
-import { SyntheticEvent, createRef, useLayoutEffect, useRef } from "react";
+import { createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
-import Link from "next/link";
-import { MotionImage } from "./motion/MotionImage";
-import { MotionVideo } from "./motion/MotionVideo";
-import { Media, PhotoMedia, VideoMedia } from "@/data/imagesAndVimeoVideos";
-import { useRouter } from "next/router";
+import type { Media } from "@/data/imagesAndVimeoVideos";
+import { TransitionLink } from "./motion/LayoutTransition";
+import { MotionMedia } from "./motion/MotionMedia";
 
 const Wrapper = styled.div({
   overflowX: "scroll",
@@ -24,20 +22,23 @@ const Inner = styled.div({
   gridAutoFlow: "column",
 });
 
-const WrappedLink = styled(Link)`
+const StyledTransitionLink = styled(TransitionLink)`
   width: var(--card-size);
 `;
 
 export function Carousel({ items }: { items: Array<{ media: Media }> }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { state, dispatch } = useGlobalState();
+  const { state } = useGlobalState();
   useHorizontalScroll(scrollRef);
-  const router = useRouter();
 
-  const itemRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
+  const itemRefs = useRef<React.RefObject<HTMLAnchorElement>[]>([]);
 
   useLayoutEffect(() => {
-    const targetElementRef = itemRefs.current[state.projectIndex];
+    const idx = Math.max(
+      0,
+      items.findIndex((item) => item.media._id === state.projectId),
+    );
+    const targetElementRef = itemRefs.current[idx];
 
     if (scrollRef.current && targetElementRef.current) {
       const container = scrollRef.current;
@@ -59,64 +60,24 @@ export function Carousel({ items }: { items: Array<{ media: Media }> }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleClick = async (
-    e: SyntheticEvent<HTMLAnchorElement>,
-    i: number,
-  ) => {
-    e.preventDefault();
-    dispatch({ type: "projectIndex", value: i });
-    dispatch({ type: "pageTransition", value: "transitioning" });
-
-    const transitionType = e.currentTarget.dataset.type;
-    const { currentTarget } = e;
-    const href = currentTarget.getAttribute("href");
-
-    if (transitionType === "video") {
-      const videoEl = currentTarget.querySelector("video");
-      if (videoEl) {
-        videoEl.pause();
-        const { currentTime } = videoEl;
-        dispatch({ type: "videoTime", value: currentTime || 0 });
-      }
-    }
-
-    if (href) router.push(href, undefined, { scroll: false });
-  };
-
-  const animationProps = (i: number) => ({
-    ref: (itemRefs.current[i] = itemRefs.current[i] || createRef()),
-    layoutId: `item-${i}`,
-    initial: state.projectIndex !== i && { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: state.projectIndex !== i ? 0 : 1 },
-  });
-
   return (
     <Wrapper ref={scrollRef}>
       <Inner>
         {items.map(({ media }, i) => (
-          <WrappedLink
-            key={i}
-            href={`/work/item-${i}`}
-            onClick={(e) => handleClick(e, i)}
-            data-type={media._type}
+          <StyledTransitionLink
+            ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
+            key={media._id}
+            id={media._id}
+            href={`/work/item-${media._id}`}
           >
-            {media._type === "video" && (
-              <MotionVideo
-                media={media as VideoMedia}
-                active={false}
-                {...animationProps(i)}
-              />
-            )}
-
-            {media._type === "photo" && (
-              <MotionImage
-                media={media as PhotoMedia}
-                priority={state.projectIndex === i}
-                {...animationProps(i)}
-              />
-            )}
-          </WrappedLink>
+            <MotionMedia
+              media={media}
+              layoutId={`item-${media._id}`}
+              initial={state.projectId !== media._id && { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: state.projectId !== media._id ? 0 : 1 }}
+            />
+          </StyledTransitionLink>
         ))}
       </Inner>
     </Wrapper>

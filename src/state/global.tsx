@@ -7,7 +7,7 @@ import React, { createContext, useReducer, ReactNode, Dispatch } from "react";
 
 type State = {
   siteInitialized: boolean;
-  projectIndex: number;
+  projectId: number | undefined;
   previousRoute: string | null;
   backgroundColor: string;
   introComplete: boolean;
@@ -23,14 +23,14 @@ type Action =
   | { type: "protectedPage"; value: boolean }
   | { type: "previousRoute"; value: string | null }
   | { type: "backgroundColor"; value: string }
-  | { type: "projectIndex"; value: number }
+  | { type: "projectId"; value: number }
   | { type: "previousFooterTop"; value: number }
   | { type: "pageTransition"; value: "idle" | "transitioning" | "done" }
   | { type: "videoTime"; value: number };
 
 const initialState: State = {
   siteInitialized: false,
-  projectIndex: 0,
+  projectId: undefined,
   previousRoute: null,
   backgroundColor: "var(--white)",
   introComplete: false,
@@ -66,8 +66,8 @@ const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
         return { ...prevState, protectedPage: action.value };
       case "backgroundColor":
         return { ...prevState, backgroundColor: action.value };
-      case "projectIndex":
-        return { ...prevState, projectIndex: action.value };
+      case "projectId":
+        return { ...prevState, projectId: action.value };
       case "previousFooterTop":
         return { ...prevState, previousFooterTop: action.value };
       case "pageTransition":

@@ -4,10 +4,11 @@ import { forwardRef } from "react";
 import { LayoutWrapper } from "./LayoutWrapper";
 import styled from "styled-components";
 import { PhotoMedia } from "@/data/imagesAndVimeoVideos";
+import { useGlobalState } from "@/hooks/useGlobalState";
 
 const Wrapper = styled(LayoutWrapper)``;
 
-interface Props extends MotionProps {
+export interface Props extends MotionProps {
   media: PhotoMedia;
   width?: number;
   height?: number;
@@ -16,6 +17,7 @@ interface Props extends MotionProps {
 
 export const MotionImage = forwardRef<HTMLDivElement, Props>(
   ({ media, priority = false, width = 500, height = 500, ...props }, ref) => {
+    const { state } = useGlobalState();
     return (
       <Wrapper ref={ref} {...props}>
         <NextImage
@@ -23,7 +25,7 @@ export const MotionImage = forwardRef<HTMLDivElement, Props>(
           alt="Bum"
           width={width}
           height={height}
-          priority={priority}
+          priority={priority ?? state.projectId === media._id}
         />
       </Wrapper>
     );

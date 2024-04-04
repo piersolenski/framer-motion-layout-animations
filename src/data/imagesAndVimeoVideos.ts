@@ -1,8 +1,11 @@
-export type PhotoMedia = {
+type MediaBase = {
+  _id: number;
+};
+export type PhotoMedia = MediaBase & {
   _type: "photo";
   image: { asset: string };
 };
-export type VideoMedia = {
+export type VideoMedia = MediaBase & {
   _type: "video";
   vimeoUrl: string;
   cloudinaryId: string;
@@ -14,6 +17,7 @@ export type Media = PhotoMedia | VideoMedia;
 export const imagesAndVimeoIds: Array<{ media: Media }> = [
   {
     media: {
+      _id: 83654,
       _type: "video",
       vimeoUrl: "https://vimeo.com/765321481",
       cloudinaryId:
@@ -23,6 +27,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 78392,
       _type: "photo",
       image: {
         asset:
@@ -32,6 +37,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 12493,
       _type: "video",
       vimeoUrl: "https://vimeo.com/723877014",
       cloudinaryId:
@@ -41,6 +47,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 29742,
       _type: "photo",
       image: {
         asset:
@@ -50,6 +57,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 39590,
       _type: "video",
       vimeoUrl: "https://vimeo.com/804101717",
       cloudinaryId:
@@ -59,6 +67,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 34945,
       _type: "photo",
       image: {
         asset:
@@ -68,6 +77,7 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
   },
   {
     media: {
+      _id: 90485,
       _type: "photo",
       image: {
         asset:
