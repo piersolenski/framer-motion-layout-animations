@@ -52,7 +52,6 @@ export const TransitionLink = forwardRef<HTMLAnchorElement, Props>(
         const videoEl = currentTarget.querySelector("video");
 
         if (videoEl) {
-          console.log(videoEl);
           videoEl.pause();
           const { currentTime } = videoEl;
           dispatch({ type: "videoTime", value: currentTime || 0 });

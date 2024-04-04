@@ -63,10 +63,9 @@ export const MotionVideo = forwardRef<HTMLDivElement, Props>(
     const [error, setError] = useState(false);
 
     const pathname = usePathname();
+    const projectPage = pathname !== "/";
 
     const { state } = useGlobalState();
-    const active = pathname !== "/";
-
     useEffect(() => {
       if (ref.current) {
         ref.current.currentTime = state.videoTime;
@@ -75,7 +74,7 @@ export const MotionVideo = forwardRef<HTMLDivElement, Props>(
     }, [ref, state.videoTime]);
 
     function handleClick() {
-      setHideThumbnail(!error && true);
+      setHideThumbnail(!error && projectPage);
     }
 
     function handleError() {
@@ -85,14 +84,13 @@ export const MotionVideo = forwardRef<HTMLDivElement, Props>(
 
     return (
       <Wrapper ref={wrapperRef} layoutId={layoutId} {...props}>
-        {!error && active && (
+        {state.pageTransition === "done" && !error && projectPage && (
           <VideoPlayer
             playerRef={videoPlayerRef}
             media={media}
             onError={handleError}
           />
         )}
-        <Image src={media.thumbnail} alt="Bum" width={width} height={height} />
         <Video
           ref={ref}
           $active={!hideThumnail}
@@ -111,6 +109,7 @@ export const MotionVideo = forwardRef<HTMLDivElement, Props>(
             type="video/mp4"
           />
         </Video>
+        <Image src={media.thumbnail} alt="Bum" width={width} height={height} />
       </Wrapper>
     );
   },
