@@ -1,5 +1,10 @@
 import React, { createContext, useReducer, ReactNode, Dispatch } from "react";
 
+/* INFO:
+ * pageTransition: Used to prevent incoming page transitions interfering
+ *                 with outgoing page transitions.
+ */
+
 type State = {
   siteInitialized: boolean;
   projectIndex: number;

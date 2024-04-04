@@ -5,16 +5,16 @@ import { MouseEvent, useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
 import { useGlobalState } from "../../hooks/useGlobalState";
 import styled from "styled-components";
-import { MotionTitle } from "@/components/MotionTitle";
+import { MotionTitle } from "@/components/motion/MotionTitle";
 import { Centered } from "@/components/Centered";
-import { MotionImage } from "@/components/MotionImage";
+import { MotionImage } from "@/components/motion/MotionImage";
 import { transition } from "@/theme/animations";
 import {
   PhotoMedia,
   VideoMedia,
   imagesAndVimeoIds,
 } from "@/data/imagesAndVimeoVideos";
-import { MotionVideo } from "@/components/MotionVideo";
+import { MotionVideo } from "@/components/motion/MotionVideo";
 
 const Wrapper = styled.div({
   display: "grid",

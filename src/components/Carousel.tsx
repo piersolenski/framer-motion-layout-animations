@@ -3,8 +3,8 @@ import { SyntheticEvent, createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import Link from "next/link";
-import { MotionImage } from "./MotionImage";
-import { MotionVideo } from "./MotionVideo";
+import { MotionImage } from "./motion/MotionImage";
+import { MotionVideo } from "./motion/MotionVideo";
 import { Media, PhotoMedia, VideoMedia } from "@/data/imagesAndVimeoVideos";
 import { useRouter } from "next/router";
 
@@ -34,9 +34,7 @@ export function Carousel({ items }: { items: Array<{ media: Media }> }) {
   useHorizontalScroll(scrollRef);
   const router = useRouter();
 
-  const itemRefs = useRef<
-    React.RefObject<HTMLImageElement | HTMLVideoElement>[]
-  >([]);
+  const itemRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   useLayoutEffect(() => {
     const targetElementRef = itemRefs.current[state.projectIndex];
