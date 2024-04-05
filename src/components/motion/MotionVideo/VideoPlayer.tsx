@@ -1,5 +1,5 @@
 import { VideoMedia } from "@/data/imagesAndVimeoVideos";
-import { useState } from "react";
+import { CSSProperties, ChangeEvent, MouseEvent, useState } from "react";
 import ReactPlayer from "react-player/lazy";
 
 import { Play } from "./icons/Play";
@@ -9,6 +9,7 @@ import { Mute } from "./icons/Mute";
 import { FullscreenOpen } from "./icons/FullscreenOpen";
 import { FullscreenClose } from "./icons/FullscreenClose";
 import styled from "styled-components";
+import { OnProgressProps } from "react-player/base";
 
 const Wrapper = styled.div<{ active: boolean }>`
   position: absolute;
@@ -186,7 +187,7 @@ const UnstyledButton = styled.button`
 
 export interface VideoPlayerProps {
   playerRef: React.MutableRefObject<any>;
-  media: VideoMedia;
+  media: VideoMedia["media"];
 }
 
 export const VideoPlayer = ({
@@ -208,10 +209,10 @@ export const VideoPlayer = ({
     setFullscreen(!fullscreen);
   };
 
-  function handleProgress(e) {
+  function handleProgress(state: OnProgressProps) {
     if (!seeking) {
-      setPlayed(e.played);
-      setLoaded(e.loaded);
+      setPlayed(state.played);
+      setLoaded(state.loaded);
     }
   }
 
@@ -219,13 +220,14 @@ export const VideoPlayer = ({
     setSeeking(true);
   }
 
-  function handleSeekChange(e) {
+  function handleSeekChange(e: ChangeEvent<HTMLInputElement>) {
     setPlayed(parseFloat(e.target.value));
   }
 
-  function handleSeekMouseUp(e) {
+  function handleSeekMouseUp(e: MouseEvent<HTMLInputElement>) {
     if (!playerRef.current) return;
-    playerRef.current.seekTo(parseFloat(e.target.value));
+    const target = e.target as HTMLInputElement;
+    playerRef.current.seekTo(parseFloat(target.value));
     setSeeking(false);
   }
 
@@ -260,9 +262,9 @@ export const VideoPlayer = ({
         </UnstyledButton>
         <ProgressBar>
           <Seeker
-            style={{ "--value": `${played * 100}%` }}
+            style={{ "--value": `${played * 100}%` } as CSSProperties}
             type="range"
-            onMouseDown={(e) => handleSeekMouseDown(e)}
+            onMouseDown={() => handleSeekMouseDown()}
             onChange={(e) => handleSeekChange(e)}
             min={0}
             max={0.999999}

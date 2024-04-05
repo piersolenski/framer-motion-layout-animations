@@ -6,7 +6,7 @@ import { MotionTitle } from "@/components/motion/MotionTitle";
 import { Centered } from "@/components/Centered";
 import { transition } from "@/theme/animations";
 import { imagesAndVimeoIds } from "@/data/imagesAndVimeoVideos";
-import { TransitionLink } from "@/components/motion/LayoutTransition";
+import { TransitionLink } from "@/components/motion/TransitionLink";
 import { MotionMedia } from "@/components/motion/MotionMedia";
 
 const Wrapper = styled.div({
@@ -25,7 +25,7 @@ const Content = styled(Centered)({
 
 export async function getStaticPaths() {
   return {
-    paths: imagesAndVimeoIds.map(({ media }) => ({
+    paths: imagesAndVimeoIds.map((media) => ({
       params: { slug: `item-${media._id}` },
     })),
     fallback: false,
@@ -40,9 +40,7 @@ export async function getStaticProps(context: { params: { slug: string } }) {
   }
 
   const id = getId(slug);
-  const currentIdx = imagesAndVimeoIds.findIndex(
-    ({ media }) => media._id === id,
-  );
+  const currentIdx = imagesAndVimeoIds.findIndex((media) => media._id === id);
   const nextIdx = (currentIdx + 1) % imagesAndVimeoIds.length;
   const nextProject = imagesAndVimeoIds[nextIdx];
 
@@ -52,7 +50,7 @@ export async function getStaticProps(context: { params: { slug: string } }) {
         slug,
         item: imagesAndVimeoIds[currentIdx],
         nextProject: {
-          id: nextProject.media._id,
+          id: nextProject._id,
           item: nextProject,
         },
       },
@@ -78,7 +76,7 @@ export default function Work({ data }: Props) {
   return (
     <Wrapper>
       <Centered>
-        <TransitionLink id={data.item.media._id} href="/">
+        <TransitionLink id={data.item._id} href="/">
           <MotionTitle
             initial={
               state.previousRoute === "/"
@@ -87,15 +85,14 @@ export default function Work({ data }: Props) {
             }
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-          >{`/work/item-${data.item.media._id}`}</MotionTitle>
+          >{`/work/item-${data.item._id}`}</MotionTitle>
         </TransitionLink>
       </Centered>
 
       <Centered>
         <MotionMedia
-          active
-          media={data.item.media}
-          layoutId={`item-${data.item.media._id}`}
+          item={data.item}
+          layoutId={`item-${data.item._id}`}
           initial={
             state.previousRoute === "/"
               ? { opacity: 0 }
@@ -116,7 +113,7 @@ export default function Work({ data }: Props) {
         <TransitionLink id={data.nextProject.id} href={nextProjectHref}>
           <MotionTitle>{nextProjectHref}</MotionTitle>
         </TransitionLink>
-        <MotionMedia media={data.nextProject.item.media} />
+        <MotionMedia item={data.nextProject.item} />
       </Centered>
     </Wrapper>
   );

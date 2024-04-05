@@ -35,7 +35,7 @@ const Video = styled.video<{ $active: boolean }>`
 `;
 
 export interface Props extends MotionProps {
-  media: VideoMedia;
+  media: VideoMedia["media"];
   width?: number;
   height?: number;
   imageSrc?: string;

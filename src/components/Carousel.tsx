@@ -3,7 +3,7 @@ import { createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
 import type { Media } from "@/data/imagesAndVimeoVideos";
-import { TransitionLink } from "./motion/LayoutTransition";
+import { TransitionLink } from "./motion/TransitionLink";
 import { MotionMedia } from "./motion/MotionMedia";
 
 const Wrapper = styled.div({
@@ -26,7 +26,11 @@ const StyledTransitionLink = styled(TransitionLink)`
   width: var(--card-size);
 `;
 
-export function Carousel({ items }: { items: Array<{ media: Media }> }) {
+interface Props {
+  items: Media[];
+}
+
+export function Carousel({ items }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { state } = useGlobalState();
   useHorizontalScroll(scrollRef);
@@ -36,7 +40,7 @@ export function Carousel({ items }: { items: Array<{ media: Media }> }) {
   useLayoutEffect(() => {
     const idx = Math.max(
       0,
-      items.findIndex((item) => item.media._id === state.projectId),
+      items.findIndex((item) => item._id === state.projectId),
     );
     const targetElementRef = itemRefs.current[idx];
 
@@ -63,19 +67,19 @@ export function Carousel({ items }: { items: Array<{ media: Media }> }) {
   return (
     <Wrapper ref={scrollRef}>
       <Inner>
-        {items.map(({ media }, i) => (
+        {items.map((item, i) => (
           <StyledTransitionLink
             ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
-            key={media._id}
-            id={media._id}
-            href={`/work/item-${media._id}`}
+            key={item._id}
+            id={item._id}
+            href={`/work/item-${item._id}`}
           >
             <MotionMedia
-              media={media}
-              layoutId={`item-${media._id}`}
-              initial={state.projectId !== media._id && { opacity: 0 }}
+              item={item}
+              layoutId={`item-${item._id}`}
+              initial={state.projectId !== item._id && { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: state.projectId !== media._id ? 0 : 1 }}
+              exit={{ opacity: state.projectId !== item._id ? 0 : 1 }}
             />
           </StyledTransitionLink>
         ))}

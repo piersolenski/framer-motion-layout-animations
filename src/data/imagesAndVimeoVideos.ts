@@ -1,23 +1,28 @@
 type MediaBase = {
   _id: number;
 };
+
 export type PhotoMedia = MediaBase & {
-  _type: "photo";
-  image: { asset: string };
+  media: {
+    _type: "photo";
+    image: { asset: string };
+  };
 };
 export type VideoMedia = MediaBase & {
-  _type: "video";
-  vimeoUrl: string;
-  cloudinaryId: string;
-  thumbnail: string;
+  media: {
+    _type: "video";
+    vimeoUrl: string;
+    cloudinaryId: string;
+    thumbnail: string;
+  };
 };
 
 export type Media = PhotoMedia | VideoMedia;
 
-export const imagesAndVimeoIds: Array<{ media: Media }> = [
+export const imagesAndVimeoIds: Media[] = [
   {
+    _id: 83654,
     media: {
-      _id: 83654,
       _type: "video",
       vimeoUrl: "https://vimeo.com/765321481",
       cloudinaryId:
@@ -26,8 +31,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 78392,
     media: {
-      _id: 78392,
       _type: "photo",
       image: {
         asset:
@@ -36,8 +41,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 12493,
     media: {
-      _id: 12493,
       _type: "video",
       vimeoUrl: "https://vimeo.com/723877014",
       cloudinaryId:
@@ -46,8 +51,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 29742,
     media: {
-      _id: 29742,
       _type: "photo",
       image: {
         asset:
@@ -56,8 +61,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 39590,
     media: {
-      _id: 39590,
       _type: "video",
       vimeoUrl: "https://vimeo.com/804101717",
       cloudinaryId:
@@ -66,8 +71,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 34945,
     media: {
-      _id: 34945,
       _type: "photo",
       image: {
         asset:
@@ -76,8 +81,8 @@ export const imagesAndVimeoIds: Array<{ media: Media }> = [
     },
   },
   {
+    _id: 90485,
     media: {
-      _id: 90485,
       _type: "photo",
       image: {
         asset:
