@@ -5,16 +5,22 @@ import styled from "styled-components";
 
 /* Extracted out so default transition props can be applied here */
 
-const Wrapper = styled(motion.div)``;
+const MotionDiv = styled(motion.div)``;
 
 interface Props extends MotionProps {}
 
 export const LayoutWrapper = forwardRef<HTMLDivElement, Props>(
-  ({ children, ...props }, ref) => {
+  ({ layoutId, children, ...props }, ref) => {
     return (
-      <Wrapper ref={ref} transition={transition} {...props}>
+      <MotionDiv
+        ref={ref}
+        layout
+        layoutId={layoutId}
+        transition={transition}
+        {...props}
+      >
         {children}
-      </Wrapper>
+      </MotionDiv>
     );
   },
 );

@@ -2,8 +2,9 @@ import useHorizontalScroll from "../hooks/useHorizontalScroll";
 import { createRef, useLayoutEffect, useRef } from "react";
 import { useGlobalState } from "@/hooks/useGlobalState";
 import styled from "styled-components";
-import Link from "next/link";
-import { MotionImage } from "./MotionImage";
+import type { Media } from "@/data/imagesAndVimeoVideos";
+import { TransitionLink } from "./motion/TransitionLink";
+import { MotionMedia } from "./motion/MotionMedia";
 
 const Wrapper = styled.div({
   overflowX: "scroll",
@@ -21,19 +22,27 @@ const Inner = styled.div({
   gridAutoFlow: "column",
 });
 
-const WrappedLink = styled(Link)({
-  width: "var(--card-size)",
-});
+const StyledTransitionLink = styled(TransitionLink)`
+  width: var(--card-size);
+`;
 
-export function Carousel({ items }: { items: string[] }) {
+interface Props {
+  items: Media[];
+}
+
+export function Carousel({ items }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { state, dispatch } = useGlobalState();
+  const { state } = useGlobalState();
   useHorizontalScroll(scrollRef);
 
-  const itemRefs = useRef<React.RefObject<HTMLImageElement>[]>([]);
+  const itemRefs = useRef<React.RefObject<HTMLAnchorElement>[]>([]);
 
   useLayoutEffect(() => {
-    const targetElementRef = itemRefs.current[state.projectIndex];
+    const idx = Math.max(
+      0,
+      items.findIndex((item) => item._id === state.projectId),
+    );
+    const targetElementRef = itemRefs.current[idx];
 
     if (scrollRef.current && targetElementRef.current) {
       const container = scrollRef.current;
@@ -59,21 +68,20 @@ export function Carousel({ items }: { items: string[] }) {
     <Wrapper ref={scrollRef}>
       <Inner>
         {items.map((item, i) => (
-          <WrappedLink
-            key={i}
-            href={`/work/item-${i}`}
-            onClick={() => dispatch({ type: "projectIndex", value: i })}
+          <StyledTransitionLink
+            ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
+            key={item._id}
+            id={item._id}
+            href={`/work/item-${item._id}`}
           >
-            <MotionImage
-              ref={(itemRefs.current[i] = itemRefs.current[i] || createRef())}
-              src={item}
-              layoutId={`image-${i}`}
-              priority={state.projectIndex === i}
-              initial={state.projectIndex !== i && { opacity: 0 }}
+            <MotionMedia
+              item={item}
+              layoutId={`item-${item._id}`}
+              initial={state.projectId !== item._id && { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: state.projectIndex !== i ? 0 : 1 }}
+              exit={{ opacity: state.projectId !== item._id ? 0 : 1 }}
             />
-          </WrappedLink>
+          </StyledTransitionLink>
         ))}
       </Inner>
     </Wrapper>
